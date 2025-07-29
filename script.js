@@ -1,3 +1,5 @@
+const API_KEY = "AIzaSyCQ609JrmDhgRyajrZ2GT1RIBchIWhFyf8";
+
 const todayVideo = {
     title: "How to Cook the Perfect Steak",
     channel: "Tasty",
@@ -31,8 +33,37 @@ const fakeVideoDatabase = [
     },
   ];
 
-document.getElementById("submit-btn").addEventListener("click", () => {
-    const userInput = document.getElementById("guess-input").value.toLowerCase();
+  
+document.getElementById("search-button").addEventListener("click", () => {
+    const query = document.getElementById("search-input").value;
+
+    fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q=${encodeURIComponent(query)}&key=${API_KEY}`)
+        .then(res => res.json())
+        .then(data => {
+            const resultsContainer = document.getElementById("results");
+            resultsContainer.innerHTML = "" //clear previous results
+
+            data.items.forEach(item => {
+                const videoId = item.id.videoId;
+                const title =   item.snippet.title;
+                const thumbnail = item.snippet.thumbnails.default.url;
+
+                const videoElement = document.createElement("div");
+                videoElement.innerHTML = `
+                    <img src="${thumbnail}" alt="${title}">
+                    <p>${title}</p>
+                    <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">Watch</a>
+                    `;
+                resultsContainer.appendChild(videoElement);                
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching Youtube data:", error);
+        });
+
+
+    //logic for hint box
+    const userInput = document.getElementById("search-input").value.toLowerCase();
     const hintBox = document.getElementById("hint-output");
 
     const guessedVideo = fakeVideoDatabase.find((video) =>
