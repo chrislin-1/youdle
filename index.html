@@ -6,16 +6,29 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Youdle: The Daily Youtube Guess Game</h1>
-    <p>Today's video has <strong>10,234,823 views</strong></p>
-    <div id="search-container">
-        <input type="text" id="search-input" placeholder="Guess the video...">
-        <div id="suggestions" class="suggestions"></div>
-        <button id="search-button">Search</button>
+    <header class="youtube-header">
+        <div class="logo">
+            <img src="youtube_logo.png" alt="Youdle Logo" />
+            <span class="brand">Youdle</span>
+        </div>
+  
+        <div id="search-container" style="position: relative;" class="search-bar">
+            <input type="text" id="search-input" placeholder="How many views...">
+            <div id="suggestions" class="suggestions"></div>
+            <button id="search-button">🔍</button>
+        </div>
+    </header>
+  <div class="video-page">
+    <!-- Left: The video -->
+    <div id="video-container" class="video-container">
+        <div id="description-container" class="description-container"></div>
     </div>
 
-    <div id="results"></div>
-    <div id="hint-output"></div>   
+    <!-- Right: The "suggested videos" style guesses -->
+    <div class="hint-section">
+      <div id="hint-output"></div>
+    </div>
+  </div>  
 
     <script src="top_videos.js"></script> 
     <script src="script.js"></script> 

@@ -1,6 +1,6 @@
 const API_KEY = "AIzaSyCQ609JrmDhgRyajrZ2GT1RIBchIWhFyf8";
 
-// Fetch top 100 most popular videos and store them in localStorage
+// Fetch top 50 most popular videos and store them in localStorage
 async function fetchTopVideos() {
   try {
     const response = await fetch(
@@ -8,16 +8,38 @@ async function fetchTopVideos() {
     );
     const data = await response.json();
 
-    // Save to localStorage so you can use it in script.js
-    localStorage.setItem("topVideos", JSON.stringify(data.items));
-    console.log("✅ Top videos saved locally!");
+    const topVideos = data.items;
+    localStorage.setItem("topVideos", JSON.stringify(topVideos));
+
+    // Pick a random video AFTER the fetch
+    const random = Math.floor(Math.random() * topVideos.length);
+    const todayVideo = topVideos[random];
+
+    const channelId = todayVideo.snippet.channelId;
+
+    // --- Second fetch: get the channel thumbnail ---
+    const channelResponse = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${API_KEY}`
+    );
+    const channelData = await channelResponse.json();
+    const channelThumbnailUrl = channelData.items[0].snippet.thumbnails.default.url;
+
+    // Add channel thumbnail to the todayVideo object
+    todayVideo.channelThumbnail = channelThumbnailUrl;
+
+    // Update localStorage with full info
+    localStorage.setItem("todayVideo", JSON.stringify(todayVideo));
+
+    console.log("✅ Today video ready with channel thumbnail:", todayVideo);
+
   } catch (error) {
-    console.error("Error fetching top videos:", error);
+    console.error("Error fetching top videos or channel info:", error);
   }
 }
 
-// Only run once to load top videos
+// Run once to fetch top videos and select today's video
 fetchTopVideos();
+
 
 /*
 const fetch = require("node-fetch"); // If you're using Node.js

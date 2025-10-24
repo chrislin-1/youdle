@@ -1,21 +1,40 @@
 //const API_KEY = "AIzaSyCQ609JrmDhgRyajrZ2GT1RIBchIWhFyf8";
 
-const topVideos = JSON.parse(localStorage.getItem("topVideos")) || [];
-
 // write to console showing all videos stored in Database
+const topVideos = JSON.parse(localStorage.getItem("topVideos")) || [];
 console.log(topVideos);
-/*
-topVideos.forEach(video => {
-    console.log(video.snippet.title);
-});
-*/
 
+//choose video and pull necessary info
+const todayVideo = JSON.parse(localStorage.getItem("todayVideo"));
+console.log(todayVideo);
+const todayViews = todayVideo.statistics.viewCount;
+const todayTitle = todayVideo.snippet.title.toLowerCase();
+const todayChannel = todayVideo.snippet.channelTitle;
+const todayThumbnail = todayVideo.snippet.thumbnails.maxres.url;
+const channelThumbnail = todayVideo.channelThumbnail;
+console.log(`today video is ${todayVideo.snippet.title}`);
+
+//get elements from html
 const searchInput = document.getElementById("search-input");
 const suggestionsContainer = document.getElementById("suggestions");
 
-const todayVideo = topVideos[0];
-console.log(`today video is ${todayVideo.snippet.title}`);
+const videoContainer = document.getElementById("video-container");
+videoContainer.innerHTML = `
+  <div class="video-player-section">
+    <img src="${todayThumbnail}" alt="${todayTitle}" class="today-thumbnail">
+  </div>
 
+  <div class="video-info-section">
+    <h2 class="video-title">${todayTitle}</h2>
+    <div class="channel-section">
+      <img src="${channelThumbnail}" alt="${todayTitle}" class="channel-thumbnail">
+      <p class="video-channel">${todayChannel}</p>
+    </div>
+  </div>
+`;
+
+////////////////////// LOGIC FOR GUESSING VIDEO WITH SUGGESTIONS BAR /////////////////////
+/* 
 // Listen for typing in the input field
 searchInput.addEventListener("input", () => {
   const query = searchInput.value.toLowerCase();
@@ -33,7 +52,19 @@ searchInput.addEventListener("input", () => {
   // Create clickable suggestion elements
   filtered.forEach(video => {
     const suggestion = document.createElement("div");
-    suggestion.textContent = video.snippet.title;
+    suggestion.classList.add("suggestion-item"); // give correct css class
+
+    const thumbnailUrl = video.snippet.thumbnails.default.url;
+    const title = video.snippet.title;
+    const channel = video.snippet.channelTitle;
+
+    suggestion.innerHTML = `
+      <img src="${thumbnailUrl}" alt="${title}" class="suggestion-thumb">
+      <div class="suggestion-info">
+        <div class="suggestion-title">${title}</div>
+        <div class="suggestion-channel">${channel}</div>
+      </div>
+    `;
 
     // When clicked, fill the input and clear suggestions
     suggestion.addEventListener("click", () => {
@@ -78,96 +109,72 @@ const videoDatabase = typeof topVideos !== "undefined" ? topVideos : [
     },
   ];
 */
-  
+console.log(`today views is ${todayViews}`);
+
 document.getElementById("search-button").addEventListener("click", () => {
-  const query = document.getElementById("search-input").value.toLowerCase();
-  const resultsContainer = document.getElementById("results");
-  resultsContainer.innerHTML = "";
+  console.log(`today views is ${todayViews}`);
+  const hintBox = document.getElementById("hint-output");
+  const query = document.getElementById("search-input").value;
+  const guessViews = Number(query.replace(/,/g, "")); //remove commas and convert to number
+  const guessFormatted = guessViews.toLocaleString();
+  const guess = document.createElement("li");
+  guess.className = "hint-item";
+  let guessResult = "";
+  let guessCount = 0;
+  guessCount += 1;
 
-  /*
-  // Filter top videos by title match
-  const matches = videoDatabase.filter(video =>
-    video.snippet.title.toLowerCase().includes(query)
-  ).slice(0, 5); // limit to 5 results
-
-  if (matches.length === 0) {
-    resultsContainer.innerHTML = "<p>No matching videos found.</p>";
+  //View Guess Calculation
+  const ViewDifference = todayViews - guessViews;
+  if(Math.abs(ViewDifference) < .5*todayViews){
+    hintBox.innerHTML = `✅✅✅YOU WIN`;
     return;
+  } else if(ViewDifference > 0){
+    guessResult = "☝️";
+  } else if (ViewDifference <0){
+    guessResult="👇";
   }
 
-  matches.forEach(video => {
-    const videoElement = document.createElement("div");
-    videoElement.innerHTML = `
-      <p><strong>${video.snippet.title}</strong></p>
-      <p>${video.snippet.channelTitle}</p>
-      <p>${video.statistics.viewCount.toLocaleString()} views</p>
-    `;
-    resultsContainer.appendChild(videoElement);
-  });
-*/  
-
+/////////////// LOGIC FOR CHANGING WORDLE STYLE HINTS TO GUESS VIDEO //////////////
+  /*
     //logic for hint box
     const userInput = document.getElementById("search-input").value.toLowerCase();
     const hintBox = document.getElementById("hint-output");
 
-    const guessedVideo = topVideos.find((video) =>
+    const guess = document.createElement("div");
+    const guessVideo = topVideos.find((video) =>
         video.snippet.title.toLowerCase() === userInput
     );
-    const guessViews = guessedVideo.statistics.viewCount;
-    const guessTitle = guessedVideo.snippet.title.toLowerCase();
-    const guessChannel = guessedVideo.snippet.channelTitle;
-    const todayViews = todayVideo.statistics.viewCount;
-    const todayTitle = todayVideo.snippet.title.toLowerCase();
-    const todayChannel = todayVideo.snippet.channelTitle;
+    const guessViews = guessVideo.statistics.viewCount;
+    const guessTitle = guessVideo.snippet.title.toLowerCase();
+    const guessChannel = guessVideo.snippet.channelTitle;
+    const guessThumbnail = guessVideo.snippet.thumbnails.default.url;
+    let guessResult = "";
 
-    console.log(`guessedVideo is ${guessedVideo}`);
+    console.log(`guessedVideo is ${guessTitle}`);
 
-    if(!guessedVideo) {
+    if(!guessVideo) {
         hintBox.innerHTML = `<p> Video not found in our mock database, try again </p>`;
         return;
     }
 
-    const hints = [];
+    if(guessTitle === todayTitle){
+      hintBox.innerHTML = `
+        <ul>✅✅✅YOU WIN</ul>
+      `;
+      return;
+    }
 
     //Hint 1: View Count Difference
     const ViewDifference = todayViews - guessViews;
     if(ViewDifference > 0){
-        hints.push(`^Your guess has ${guessViews}`);
+        guessResult = "☝️";
     } else if (ViewDifference <0){
-        hints.push(`Your guess has ${guessViews}`);
+        guessResult="👇";
     }
-
-    //Hint 2: Same Channel
-    if (guessChannel === todayChannel){
-        hints.push("✅ Same channel");
-    } else{
-        hints.push(`❌ Different channel (You guessed: ${guessChannel})`);
-    }
-
-    /*
-    //Hint 3: Same Category
-    if (guessedVideo.category === todayVideo.category) {
-        hints.push("✅ Same category");
-    } else{
-        hints.push(`❌ Different category (You guessed: ${guessedVideo.category})`);
-    }
-        */
-
-    //Hint 4: Publish Date
-    const guessedDate = new Date(guessedVideo.snippet.publishedAt);
-    const correctDate = new Date(todayVideo.snippet.publishedAt);
-
-    if (guessedDate.getTime() === correctDate.getTime()){
-        hints.push("✅ Published on the same day");
-    } else if(guessedDate < correctDate){
-        hints.push(`📅 Your guess, published on ${guessedDate} is older`);
-    } else{
-        hints.push(`📅 Your guess, published on ${guessedDate} is newer`);
-    }
+  */
+    guess.innerHTML=`${guessResult}${guessFormatted}`;
 
     //Display Hints
-    hintBox.innerHTML = `
-        <p><strong>Your Guess:</strong> ${guessTitle}</p>
-        <ul>${hints.map((hint) => `<li>${hint}</li>`).join("")}</ul>
-    `;
+    hintBox.appendChild(guess);
+
 });
