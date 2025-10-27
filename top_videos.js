@@ -1,82 +1,54 @@
 const API_KEY = "AIzaSyCQ609JrmDhgRyajrZ2GT1RIBchIWhFyf8";
 
-// Fetch top 50 most popular videos and store them in localStorage
+/////////////////// NEW ITERATION WITH CUSTOM YOUTUBE VIDEO PLAYLIST /////////////////
+// 🟢 Replace this with your own playlist ID
+const PLAYLIST_ID = "PL8A83124F1D79BD4F"; // example: popular music videos
+
 async function fetchTopVideos() {
   try {
-    const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&maxResults=50&regionCode=US&key=${API_KEY}`
+    // 1️⃣ Step 1: Get playlist items (video IDs only)
+    const playlistResponse = await fetch(
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=50&playlistId=${PLAYLIST_ID}&key=${API_KEY}`
     );
-    const data = await response.json();
+    const playlistData = await playlistResponse.json();
 
-    const topVideos = data.items;
-    localStorage.setItem("topVideos", JSON.stringify(topVideos));
+    const videoIds = playlistData.items
+      .map(item => item.contentDetails.videoId)
+      .join(",");
 
-    // Pick a random video AFTER the fetch
+    // 2️⃣ Step 2: Fetch full video details using those IDs
+    const videoResponse = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoIds}&key=${API_KEY}`
+    );
+    const videoData = await videoResponse.json();
+
+    const topVideos = videoData.items;
+
+    // 3️⃣ Step 3: Pick a random "today" video
     const random = Math.floor(Math.random() * topVideos.length);
     const todayVideo = topVideos[random];
-
     const channelId = todayVideo.snippet.channelId;
 
-    // --- Second fetch: get the channel thumbnail ---
+    // 4️⃣ Step 4: Fetch channel details (for logo)
     const channelResponse = await fetch(
       `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${API_KEY}`
     );
     const channelData = await channelResponse.json();
-    const channelThumbnailUrl = channelData.items[0].snippet.thumbnails.default.url;
+    const channelThumbnail =
+      channelData.items[0].snippet.thumbnails.default.url;
 
-    // Add channel thumbnail to the todayVideo object
-    todayVideo.channelThumbnail = channelThumbnailUrl;
+    // Add channel thumbnail directly to the video object
+    todayVideo.channelThumbnail = channelThumbnail;
 
-    // Update localStorage with full info
+    // 5️⃣ Step 5: Store results locally
+    localStorage.setItem("topVideos", JSON.stringify(topVideos));
     localStorage.setItem("todayVideo", JSON.stringify(todayVideo));
 
-    console.log("✅ Today video ready with channel thumbnail:", todayVideo);
-
+    console.log("✅ Playlist videos saved locally!");
   } catch (error) {
-    console.error("Error fetching top videos or channel info:", error);
+    console.error("Error fetching playlist videos:", error);
   }
 }
 
-// Run once to fetch top videos and select today's video
+// Run once to load playlist videos
 fetchTopVideos();
-
-
-/*
-const fetch = require("node-fetch"); // If you're using Node.js
-const fs = require("fs");
-
-const API_KEY = "AIzaSyCQ609JrmDhgRyajrZ2GT1RIBchIWhFyf8";
-const MAX_RESULTS = 50;
-const TOTAL_RESULTS = 1000;
-const REGION = "US";
-
-let allVideos = [];
-
-async function fetchPopularVideos(pageToken = "", count = 0) {
-  if (count >= TOTAL_RESULTS) {
-    fs.writeFileSync("top_videos.json", JSON.stringify(allVideos, null, 2));
-    console.log("✅ Saved top videos to file!");
-    return;
-  }
-
-  let url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&maxResults=${MAX_RESULTS}&regionCode=${REGION}&key=${API_KEY}`;
-  if (pageToken) url += `&pageToken=${pageToken}`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (data.items) {
-    allVideos.push(...data.items);
-    console.log(`Fetched ${allVideos.length} videos...`);
-  }
-
-  if (data.nextPageToken && allVideos.length < TOTAL_RESULTS) {
-    await fetchPopularVideos(data.nextPageToken, allVideos.length);
-  } else {
-    fs.writeFileSync("top_videos.json", JSON.stringify(allVideos, null, 2));
-    console.log("✅ Done. Saved to file.");
-  }
-}
-
-fetchPopularVideos();
-*/

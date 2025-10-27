@@ -1,5 +1,26 @@
 //const API_KEY = "AIzaSyCQ609JrmDhgRyajrZ2GT1RIBchIWhFyf8";
 
+const MAX_GUESSES = 6;
+const placeholderImg = "https://www.shutterstock.com/image-vector/youtube-error-grey-icon-this-260nw-1962406363.jpg";
+const hintBox = document.getElementById("hint-output");
+
+function initializeHintBox() {
+  hintBox.innerHTML = ""; // Clear old content
+  for (let i = 0; i < MAX_GUESSES; i++) {
+    const hintItem = document.createElement("div");
+    hintItem.className = "hint-item";
+    hintItem.innerHTML = `
+      <img src="${placeholderImg}" alt="Empty guess" class="hint-thumbnail">
+      <div class="hint-info">
+        <p class="hint-text">No guess yet</p>
+      </div>
+    `;
+    hintBox.appendChild(hintItem);
+  }
+}
+
+initializeHintBox();
+
 // write to console showing all videos stored in Database
 const topVideos = JSON.parse(localStorage.getItem("topVideos")) || [];
 console.log(topVideos);
@@ -11,7 +32,15 @@ const todayViews = todayVideo.statistics.viewCount;
 const todayTitle = todayVideo.snippet.title.toLowerCase();
 const todayChannel = todayVideo.snippet.channelTitle;
 const todayThumbnail = todayVideo.snippet.thumbnails.maxres.url;
+const rawDate = new Date(todayVideo.snippet.publishedAt);
+todayDescription = todayVideo.snippet.description;
+const todayDate = rawDate.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric"
+});
 const channelThumbnail = todayVideo.channelThumbnail;
+
 console.log(`today video is ${todayVideo.snippet.title}`);
 
 //get elements from html
@@ -26,155 +55,62 @@ videoContainer.innerHTML = `
 
   <div class="video-info-section">
     <h2 class="video-title">${todayTitle}</h2>
-    <div class="channel-section">
+    <div id="channel-section">
       <img src="${channelThumbnail}" alt="${todayTitle}" class="channel-thumbnail">
       <p class="video-channel">${todayChannel}</p>
+    </div>
+    <div id="description-section">
+      <div id="views-date">
+        <h3 id="views">________views</p>
+        <h3 id="date">${todayDate}</p>
+      </div>
+        <p id="description">${todayDescription}</p>
     </div>
   </div>
 `;
 
-////////////////////// LOGIC FOR GUESSING VIDEO WITH SUGGESTIONS BAR /////////////////////
-/* 
-// Listen for typing in the input field
-searchInput.addEventListener("input", () => {
-  const query = searchInput.value.toLowerCase();
-  suggestionsContainer.innerHTML = ""; // clear previous suggestions
-
-  if (!query) return; // stop if input is empty
-
-  // Filter videos by title match
-  const filtered = topVideos
-    .filter(video => 
-      video.snippet.title.toLowerCase().includes(query)
-    )
-    .slice(0, 5); // limit to 5 results
-
-  // Create clickable suggestion elements
-  filtered.forEach(video => {
-    const suggestion = document.createElement("div");
-    suggestion.classList.add("suggestion-item"); // give correct css class
-
-    const thumbnailUrl = video.snippet.thumbnails.default.url;
-    const title = video.snippet.title;
-    const channel = video.snippet.channelTitle;
-
-    suggestion.innerHTML = `
-      <img src="${thumbnailUrl}" alt="${title}" class="suggestion-thumb">
-      <div class="suggestion-info">
-        <div class="suggestion-title">${title}</div>
-        <div class="suggestion-channel">${channel}</div>
-      </div>
-    `;
-
-    // When clicked, fill the input and clear suggestions
-    suggestion.addEventListener("click", () => {
-      searchInput.value = video.snippet.title;
-      suggestionsContainer.innerHTML = "";
-    });
-
-    suggestionsContainer.appendChild(suggestion);
-  });
-});
-
-// Optional: clear suggestions when clicking elsewhere
-document.addEventListener("click", (e) => {
-  if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
-    suggestionsContainer.innerHTML = "";
-  }
-});
-
-/*
-// Use topVideos if available, otherwise fall back to mock data for testing
-const videoDatabase = typeof topVideos !== "undefined" ? topVideos : [
-    {
-      title: "Cooking Tips for Beginners",
-      channel: "Gordon Ramsay",
-      views: 9348210,
-      category: "Food",
-      published: "2022-03-12",
-    },
-    {
-      title: "10-Minute Workout",
-      channel: "FitnessBlender",
-      views: 8234810,
-      category: "Fitness",
-      published: "2021-08-01",
-    },
-    {
-      title: "How to Cook the Perfect Steak",
-      channel: "Tasty",
-      views: 10234823,
-      category: "Food",
-      published: "2022-01-10",
-    },
-  ];
-*/
 console.log(`today views is ${todayViews}`);
 
+let guessCount = 0;
 document.getElementById("search-button").addEventListener("click", () => {
-  console.log(`today views is ${todayViews}`);
-  const hintBox = document.getElementById("hint-output");
-  const query = document.getElementById("search-input").value;
-  const guessViews = Number(query.replace(/,/g, "")); //remove commas and convert to number
-  const guessFormatted = guessViews.toLocaleString();
-  const guess = document.createElement("li");
-  guess.className = "hint-item";
-  let guessResult = "";
-  let guessCount = 0;
-  guessCount += 1;
+  if (guessCount >= MAX_GUESSES) return; // stop at 6 guesses
 
-  //View Guess Calculation
+  const query = document.getElementById("search-input").value;
+  const guessViews = Number(query.replace(/,/g, "")); 
+  const guessFormatted = guessViews.toLocaleString();
+  const answerFormatted = Number(todayViews).toLocaleString();
+  const viewsElement = document.getElementById("views");
+
   const ViewDifference = todayViews - guessViews;
-  if(Math.abs(ViewDifference) < .5*todayViews){
-    hintBox.innerHTML = `✅✅✅YOU WIN`;
-    return;
-  } else if(ViewDifference > 0){
-    guessResult = "☝️";
-  } else if (ViewDifference <0){
-    guessResult="👇";
+  let guessThumbnail = "";
+  let guessText = "";
+
+  if (Math.abs(ViewDifference) < 0.05 * todayViews) {
+    guessThumbnail = todayThumbnail; // correct!
+    guessText = `✅ Correct! ${answerFormatted} views`;
+    viewsElement.textContent = `${answerFormatted} views`;
+    viewsElement.style.color = "green";
+  } else if (ViewDifference > 0) {
+    guessThumbnail = "https://www.kindpng.com/picc/m/20-200332_youtube-facebook-like-button-blog-facebook-hd-png.png";
+    guessText = `☝️ ${guessFormatted} — too low`;
+  } else {
+    guessThumbnail = "https://innovation-village.com/wp-content/uploads/2021/04/youtube-dislike-download-icon-3.jpeg";
+    guessText = `👇 ${guessFormatted} — too high`;
   }
 
-/////////////// LOGIC FOR CHANGING WORDLE STYLE HINTS TO GUESS VIDEO //////////////
-  /*
-    //logic for hint box
-    const userInput = document.getElementById("search-input").value.toLowerCase();
-    const hintBox = document.getElementById("hint-output");
+  // Update one of the placeholders
+  const hintItems = document.querySelectorAll(".hint-item");
+  const currentHint = hintItems[guessCount];
+  currentHint.querySelector(".hint-thumbnail").src = guessThumbnail;
+  currentHint.querySelector(".hint-text").textContent = guessText;
 
-    const guess = document.createElement("div");
-    const guessVideo = topVideos.find((video) =>
-        video.snippet.title.toLowerCase() === userInput
-    );
-    const guessViews = guessVideo.statistics.viewCount;
-    const guessTitle = guessVideo.snippet.title.toLowerCase();
-    const guessChannel = guessVideo.snippet.channelTitle;
-    const guessThumbnail = guessVideo.snippet.thumbnails.default.url;
-    let guessResult = "";
+  searchInput.value = "";
+  guessCount++;
+});
 
-    console.log(`guessedVideo is ${guessTitle}`);
-
-    if(!guessVideo) {
-        hintBox.innerHTML = `<p> Video not found in our mock database, try again </p>`;
-        return;
-    }
-
-    if(guessTitle === todayTitle){
-      hintBox.innerHTML = `
-        <ul>✅✅✅YOU WIN</ul>
-      `;
-      return;
-    }
-
-    //Hint 1: View Count Difference
-    const ViewDifference = todayViews - guessViews;
-    if(ViewDifference > 0){
-        guessResult = "☝️";
-    } else if (ViewDifference <0){
-        guessResult="👇";
-    }
-  */
-    guess.innerHTML=`${guessResult}${guessFormatted}`;
-
-    //Display Hints
-    hintBox.appendChild(guess);
-
+searchInput.addEventListener("keypress", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault(); // Prevent form submission reload
+    document.getElementById("search-button").click();
+  }
 });

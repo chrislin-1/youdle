@@ -8,7 +8,7 @@ body {
 }
 
 h1 {
-  font-size: 24px;
+  font-size: 1.4rem;
   font-weight: 600;
   margin: 20px;
   text-align: center;
@@ -17,6 +17,13 @@ h1 {
 
 h2 {
   font-size: 24px;
+  font-weight: 600;
+  text-align: left;
+  color: #c00; /* YouTube red */
+}
+
+h3 {
+  font-size: 12px;
   font-weight: 600;
   text-align: left;
   color: #c00; /* YouTube red */
@@ -78,11 +85,12 @@ h2 {
   /*border: 2px solid yellow; /* visualize where it is */
   display: flex;
   flex-direction: column;
-  /*width: 640px; /* standard YouTube video width */
+  /*width: 720px; /* standard YouTube video width */
   background-color: #181818;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  width: 876px;
 }
 
 /* Thumbnail acts like video player */
@@ -99,17 +107,24 @@ h2 {
   border-radius: 0 0 12px 12px;
 }
 
+.video-info-section div {
+  display: flex;
+}
+
+.video-info-section p {
+  font-weight: 600;
+  color: black;
+}
+
 .video-title {
   /*border: 2px solid red; /* visualize where it is */
   font-size: 1.4rem;
   font-weight: 600;
   color: black;
-  margin-bottom: 6px;
 }
 
-.channel-section {
-  /*border: 2px solid pink; /* visualize where it is */
-  display: flex;
+#channel-section {
+  align-items: center;
 }
 
 .channel-thumbnail {
@@ -117,43 +132,80 @@ h2 {
   height: 36px;          /* must be equal to width for a perfect circle */
   border-radius: 50%;    /* makes it a circle */
   object-fit: cover;     /* ensures the image fills the circle without stretching */
-  margin: 5px;
+  margin-right: 5px;
 }
 
 .video-channel {
   color: black;
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 4px;
 }
 
-.video-views {
-  color: #888;
-  font-size: 0.95rem;
+#description-section {
+  background-color: rgb(232, 232, 232);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  width: 853.33px
+}
+
+#description {
+  font-size: 12px;
+  font-weight: 300;
+  margin: 10px;
+}
+
+#views-date{
+  display: flex;
+  margin: 10px;
+}
+
+#views {
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+#date {
+  font-size: 14px;
+  color: black;
 }
 
 /* Right-side panel (like suggested videos or guesses) */
 #hint-output {
   /*border: 2px solid green; /* visualize where it is */
-  background-color: #202020;
   padding: 16px;
   border-radius: 12px;
-  width: 300px;
+  width: 400px;
   color: white;
   min-height: 200px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-/* Style for each guess */
 .hint-item {
-  background-color: #303030;
+  display: flex;
+  align-items: center;
+  background-color: #f1f1f1;
+  border-radius: 10px;
   margin-bottom: 10px;
   padding: 8px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 1.1rem;
-  color: #fff;
+  gap: 8px;
 }
+
+.hint-thumbnail {
+  width: 168px;
+  height: 94px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.hint-info {
+  flex: 1;
+}
+
+.hint-text {
+  font-size: 0.9rem;
+  color: #333;
+}
+
 
 /* Hover highlight */
 .hint-item:hover {
