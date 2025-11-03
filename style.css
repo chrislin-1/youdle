@@ -155,11 +155,27 @@ h3 {
   width: 640px;
 }
 
-#description {
-  font-size: 12px;
-  font-weight: 300;
+.description.big{
+  font-size: 18px;
+  color: black;
+  font-weight: bold;
   margin: 10px;
 }
+
+.description.yellow{
+  font-size: 15px;
+  color: rgb(183, 183, 0);
+  font-weight: bold;
+  margin: 10px;
+}
+
+.description.green{
+  font-size: 15px;
+  color: green;
+  font-weight: bold;
+  margin: 10px;
+}
+
 
 #views-date{
   display: flex;
@@ -242,11 +258,21 @@ h3 {
 }
 
 /* Thumbnail size (like YouTube suggested videos) */
+
 .hint-thumbnail {
   width: 168px;
   height: 94px;
   border-radius: 8px;
-  object-fit: cover;
+  object-fit: contain;
+}
+
+.hint-thumbnail.icon {
+  width: 168px;
+  height: 94px;
+  object-fit: contain;
+  background-color: rgb(255, 251, 251);
+  border-radius: 8px;
+  /*padding: 8px;*/
 }
 
 /* Text info next to thumbnail */
@@ -258,6 +284,7 @@ h3 {
 
 .hint-text {
   font-size: 0.9rem;
+  font-weight: bold;
   color: #111;
 }
 
