@@ -353,6 +353,10 @@ h3 {
     color: #fff;                   /* default text becomes white */
   }
 
+  h2#result-title {
+    color: #c00;
+  }
+
     /* Optional: adjust specific text elements for visibility */
   h1, h2, h3, p, .description, .video-title, .video-channel {
     color: #fff;
