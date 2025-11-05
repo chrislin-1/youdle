@@ -16,7 +16,7 @@ function initializeHintBox() {
         <div class="hint-front">
           <img src="${placeholderImg}" alt="Empty guess" class="hint-thumbnail">
           <div class="hint-info">
-            <p class="hint-text">_______ views</p>
+            <p class="hint-text">?????? views</p>
           </div>
         </div>
         <div class="hint-back">
@@ -35,6 +35,19 @@ initializeHintBox();
 
 /////////////// NOV 3: GENERATED JSON FILE OF VIDEOS OFFLINE, NO API CALL NEEDED FOR PLAYERS ANYMORE //////////////
 async function loadTopVideos() {
+  const instructionsModal = document.getElementById("instructions-modal");
+  // Show instructions on load
+  window.addEventListener("load", () => {
+    instructionsModal.style.display = "flex";
+  });
+
+  // Close instructions and start game
+  window.addEventListener("click", (e) => {
+    if (e.target === instructionsModal) {
+      instructionsModal.classList.add("hidden");
+    }
+  });
+
   const response = await fetch("top_videos.json");
   const topVideos = await response.json();
 
@@ -49,6 +62,7 @@ async function loadTopVideos() {
   //choose video and pull necessary info
   console.log(todayVideo);
   const todayViews = todayVideo.statistics.viewCount;
+  const answerFormatted = Number(todayViews).toLocaleString();
   const todayTitle = todayVideo.snippet.title;
   const todayChannel = todayVideo.snippet.channelTitle;
   const todayThumbnail = todayVideo.snippet.thumbnails.high.url;
@@ -93,18 +107,30 @@ async function loadTopVideos() {
       </div>
       <div id="description-section">
         <div id="views-date">
-          <h3 id="views">________views</p>
-          <h3 id="date">${yearsAgo} years ago</p>
+          <h3 id="views">?????? views</h3>
+          <h3 id="date">${yearsAgo} years ago</h3>
         </div>
-        <p class="description big">Guess the number of views the viral YouTube video has 😎</p> 
-        <p class="description yellow">Your guess is considered close if it's within 30% of the answer.</p>
-        <p class="description green">You win if your guess is within 5%.</p>
+        <p class="description"> ${todayDescription}</p>
       </div>
     </div>
   `;
 
   if(isMobile){
-    console.log("Mobile device detected — simplifying layout");
+    const header = document.getElementById("youdle-header");
+    header.innerHTML = `
+      <div class="logo">
+          <img src="images/nyancat.webp" alt="Youdle Logo" width="50"/>
+          <span class="brand">Youdle</span>
+      </div>
+      <div class="menu-right">
+        <button id="how-to-button" class="menu-button">
+          <img id="how-to-icon" src="images/how-to-mobile.png" alt="Question icons created by Shashank Singh - Flaticon"></img>
+        </button>
+        <button id="history-button" class="menu-button">
+          <img id="history-icon" src="images/history-mobile.png" alt="History icons created by Tempo_doloe - Flaticon"></img>
+        </button>
+      </div>
+    `
 
     videoContainer.innerHTML = `
       <div class="video-player-section">
@@ -123,7 +149,7 @@ async function loadTopVideos() {
         <h2 class="video-title">${todayTitle}</h2>
         <div id="description-section">
           <div id="views-date">
-            <p id="views">________views</p>
+            <p id="views">?????? views</p>
             <p id="date">${yearsAgo} years ago</p>
           </div>
         </div>
@@ -149,7 +175,7 @@ async function loadTopVideos() {
       resultTitle.textContent = "🎉 Well Done... You internet gremlin";
       resultGif.src = "https://gifsec.com/wp-content/uploads/2021/11/like-a-boss-gif-1.gif"; // confetti GIF
     } else {
-      resultTitle.textContent = "😢 You lost, but at least you're not an internet loser?";
+      resultTitle.innerHTML = `😢 You lost, but at least you're not an internet loser? Today's video has <span style=color:red>${answerFormatted} views</span>`;
       resultGif.src = "https://i0.wp.com/badbooksgoodtimes.com/wp-content/uploads/2013/06/threw-it-on-the-ground-1.gif?fit=389%2C219&ssl=1"; // sad GIF
     }
 
@@ -159,6 +185,7 @@ async function loadTopVideos() {
   // Function to hide modal
   closeModal.addEventListener("click", () => {
     modal.classList.add("hidden");
+    instructionsModal.classList.add("hidden");
   });
 
   // Optional: click outside modal to close
@@ -169,13 +196,31 @@ async function loadTopVideos() {
   });
   ////////////////////////////////////////////////////////////////////////////////////
 
+  //////////////////////////// LIVE INPUT FORMATTING  ////////////////////////////////
+  searchInput.addEventListener("input", (e) => {
+    let guess = e.target.value;
+
+    // Remove all non-digit characters
+    guess = guess.replace(/\D/g, "");
+
+    // If empty, clear field
+    if (!guess) {
+      e.target.value = "";
+      return;
+    }
+
+    // Convert to number and format with commas
+    const numberValue = parseInt(guess, 10);
+    e.target.value = numberValue.toLocaleString();
+  });
+  
+  //////////////////////////// SUBMITTED ANSWER LOGIC ////////////////////////////////
   let guessCount = 0;
   document.getElementById("search-button").addEventListener("click", () => {
     if (guessCount >= MAX_GUESSES) return; // stop at 6 guesses
-    const query = document.getElementById("search-input").value;
+    const query = searchInput.value;
     const guessViews = Number(query.replace(/,/g, "")); 
     const guessFormatted = guessViews.toLocaleString();
-    const answerFormatted = Number(todayViews).toLocaleString();
     const viewsElement = document.getElementById("views");
 
     const ViewDifference = todayViews - guessViews;
@@ -200,7 +245,7 @@ async function loadTopVideos() {
       currentBack.style.backgroundColor = "green";
       showResultModal(true);
     } else if (ViewDifference > 0) {
-        guessThumbnail = "images/like.png";
+        guessThumbnail = "images/up.png";
         backImg.textContent="Like icons created by Gregor Cresnar - Flaticon";
         backImg.classList.add("icon");
       if (Math.abs(ViewDifference) < 0.3 * todayViews) {
@@ -212,9 +257,13 @@ async function loadTopVideos() {
         guessText = `${guessFormatted} — You're way off...`;
       }
       //SHOW RESULTS IF MAX GUESSES REACHED
-      if(guessCount >= MAX_GUESSES - 1) showResultModal(false);
+      if(guessCount >= MAX_GUESSES - 1) {
+        viewsElement.textContent = `${answerFormatted} views`;
+        console.log(`incorrect, the video has ${answerFormatted} views`)
+        showResultModal(false);
+      }
     } else {
-        guessThumbnail = "images/dislike.png";
+        guessThumbnail = "images/down.png";
         backImg.textContent="Thumb down icons created by lalawidi - Flaticon";
         backImg.classList.add("icon");
       if (Math.abs(ViewDifference) < 0.3 * todayViews) {
@@ -226,7 +275,11 @@ async function loadTopVideos() {
         guessText = `${guessFormatted} — You're way off...`;
       }
       //SHOW RESULTS IF MAX GUESSES REACHED
-      if(guessCount >= MAX_GUESSES - 1) showResultModal(false);
+      if(guessCount >= MAX_GUESSES - 1) {
+        viewsElement.textContent = `${answerFormatted} views`;
+        console.log(`incorrect, the video has ${answerFormatted} views`)
+        showResultModal(false);
+      }
     }
 
     backImg.src = guessThumbnail;
@@ -248,6 +301,11 @@ async function loadTopVideos() {
       document.getElementById("search-button").click();
     }
   });
+
+  const infoButton = document.getElementById('how-to-button');
+  infoButton.addEventListener("click", () => {
+    instructionsModal.classList.remove("hidden");    
+  })
 }
 
 loadTopVideos();

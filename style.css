@@ -8,17 +8,14 @@ body {
 }
 
 h1 {
-  font-size: 1.4rem;
+  font-size: 24px;
   font-weight: 600;
-  margin: 20px;
-  text-align: center;
   color: #c00; /* YouTube red */
 }
 
 h2 {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
-  color: #c00; /* YouTube red */
 }
 
 h3 {
@@ -29,11 +26,70 @@ h3 {
 }
 
 .logo{
+  position:absolute;
+  left: 15px;
+  top: 5px;
+  gap: 5px;
   display: flex;
   align-items: center;
   font-weight: bold;
   color: #c00;
 }
+
+.menu-right {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+  top: 5px;
+  right: 15px;
+}
+
+.menu-button {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 20px;
+  background-color: #f9f9f9;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu-button:hover {
+  background-color: rgba(200, 200, 200, 0.3); /* light gray overlay */
+}
+
+#how-to-icon, #history-icon {
+  height: 30.88px;
+}
+
+#instructions-content {
+  text-align: left;
+}
+
+.ex {
+  margin-left: 5px;
+}
+
+.example {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 12px; /* adds spacing between cards */
+  height: 100px; /* ensures each card has its own space */
+  border: none; /* remove debug outline */
+  border-radius: 8px;
+  overflow: hidden;
+  align-items: center;
+  gap: 5px;
+}
+
+  .your-text {
+    color: navy;
+    font-weight: bold;
+  }
 
 /* --- SEARCH BAR --- */
 .search-bar {
@@ -42,6 +98,17 @@ h3 {
   align-items: center;
   margin: 10px 0 20px 0;
   gap: 8px;
+}
+
+#search-container {
+  width: 50%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 #search-input {
@@ -57,9 +124,9 @@ h3 {
   background-color: #c00;
   color: white;
   font-weight: bold;
-  border: none;
   border-radius: 20px;
   cursor: pointer;
+  border:none
 }
 
 #search-button:hover {
@@ -143,28 +210,10 @@ h3 {
   width: 640px;
 }
 
-.description.big{
-  font-size: 18px;
-  color: black;
-  font-weight: bold;
-  margin: 10px;
-  margin-top: 0;
+.description {
+  font-size: 12px;
+  padding: 10px;
 }
-
-.description.yellow{
-  font-size: 15px;
-  color: rgb(183, 183, 0);
-  font-weight: bold;
-  margin: 10px;
-}
-
-.description.green{
-  font-size: 15px;
-  color: green;
-  font-weight: bold;
-  margin: 10px;
-}
-
 
 #views-date{
   display: flex;
@@ -199,7 +248,6 @@ h3 {
   width: 100%;
   margin-bottom: 12px; /* adds spacing between cards */
   height: 100px; /* ensures each card has its own space */
-  border: none; /* remove debug outline */
   border-radius: 8px;
   overflow: hidden;
 }
@@ -251,18 +299,13 @@ h3 {
 
 .hint-thumbnail {
   width: 168px;
-  height: 94px;
+  height: 100px;
   border-radius: 8px;
   object-fit: contain;
 }
 
 .hint-thumbnail.icon {
-  width: 168px;
-  height: 94px;
-  object-fit: contain;
-  background-color: rgb(255, 251, 251);
-  border-radius: 8px;
-  /*padding: 8px;*/
+  object-fit: cover;
 }
 
 /* Text info next to thumbnail */
@@ -344,6 +387,11 @@ h3 {
   margin-top: 20px;
 }
 
+#result-title {
+  color: black;
+  font-weight: bold;
+}
+
 /* ----------------------------------------------------
    📱 Mobile & Tablet Responsive Layout (<= 900px)
    ---------------------------------------------------- */
@@ -354,12 +402,38 @@ h3 {
   }
 
   h2#result-title {
-    color: #c00;
+    color: black;
   }
 
     /* Optional: adjust specific text elements for visibility */
   h1, h2, h3, p, .description, .video-title, .video-channel {
     color: #fff;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    height: 25px;
+  }
+ 
+  .menu-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    object-fit: contain;
+  } 
+
+  .menu-button {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    background-color: black;
+    justify-content: center;
+    align-items: center;
   }
 
   /* Stack main sections vertically instead of side-by-side */
@@ -478,12 +552,16 @@ h3 {
   }
 
   /* Let each hint keep natural height */
-  .hint-item {
+  .hint-item, .example {
     width: 90%;              /* full width but not touching edges */
     height: 50px;
     max-width: 350px;        /* optional: keeps them neat */
     padding: 0;
-    margin: 0;
+    margin-bottom: 1px;
+  }
+
+  .example {
+    margin: 10px;
   }
 
   .hint-front {
@@ -519,7 +597,7 @@ h3 {
   }
 
   /* Reduce header height and spacing */
-  .youtube-header {
+  #youdle-header {
     flex-direction: column;
     align-items: center;
     gap: 6px;
@@ -531,8 +609,26 @@ h3 {
   }
 
   /* Keep modal centered & readable on phones */
-  .modal-content {
+  .modal-content, .instructions-content {
     width: 90%;
     max-width: 360px;
+    background-color: #1a1b1e;
+    padding:10px;
+  }
+
+  .your-text {
+    color: aqua;
+    font-weight: bold;
+  }
+
+  .menu-button:active {
+    background-color: #000;
+  }
+  .menu-button:hover {
+    background-color: #000;
+  }
+
+  #instructions-modal {
+
   }
 }

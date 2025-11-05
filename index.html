@@ -7,18 +7,68 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header class="youtube-header">
-        <div class="logo">
-            <img src="images/nyancat.webp" alt="Youdle Logo" width="50"/>
-            <span class="brand">Youdle</span>
-        </div>
-  
-        <div id="search-container" style="position: relative;" class="search-bar">
-            <input type="text" id="search-input" placeholder="Guess how many views...">
-            <div id="suggestions" class="suggestions"></div>
-            <button id="search-button">🔍</button>
-        </div>
-    </header>
+  <div id="instructions-modal" class="modal">
+    <div id="instructions-content" class="modal-content">
+      <h1>How to Play</h1>
+      <h2>Guess how many views today's video has on YouTube. </h2>
+      <p>With every guess, you'll learn how close you are to the actual answer, as well as if you're too high or too low.</p>
+      <h2>Example Game:</h2>
+      <ul>
+        <li>
+          <span class="your-text">Your guess (50,000,000)</span>
+          is considered 
+          <span style="color: #c00; font-weight: bold;">far</span> 
+            because its more than 30% away from the correct answer. Your answer is also too low, so the finger icon points up.
+        <div class="example" style="background-color: #c00;">
+          <img src="images/up.png" alt="You're too low!" class="hint-thumbnail icon ex"> 
+          <p class="hint-text"> 50,000,000 - You're way off...</p>
+        </div>        
+        </li>
+        <li>
+          <span class="your-text">Your guess (100,000,000)</span>
+          is considered 
+          <span style="color: #FFBF00; font-weight: bold;">close</span> 
+            because its within 30% away from the correct answer. Your answer is now too high, so the finger icon points down.
+        <div class="example" style="background-color: #FFBF00;">
+          <img src="images/down.png" alt="You're too low!" class="hint-thumbnail icon ex"> 
+          <p class="hint-text"> 100,000,000 - You're close...</p>
+        </div>        
+        </li>
+        <li>
+          <span class="your-text">Your guess (90,000,000)</span> 
+                                                          was within 5% of the 
+          <span style="color: green; font-weight: bold;">answer (92,254,496)</span>
+                                                          You Win!
+          <div class="example" style="background-color: green;">
+            <img src="images/flamingo.png" alt="Correct! 92,254,496 views" class="hint-thumbnail ex"> 
+            <p class="hint-text">Correct! 92,254,496 views</p>
+          </div>  
+        </li>        
+      </ul>
+      <span id="close-modal" class="close-btn">&times;</span>
+    </div>
+  </div>
+  <header id="youdle-header">
+      <div class="logo">
+          <img src="images/nyancat.webp" alt="Youdle Logo" width="50"/>
+          <span class="brand">Youdle</span>
+      </div>
+      <div class="menu-right">
+        <button id="how-to-button" class="menu-button">
+          <img id="how-to-icon" src="images/how-to.png" alt="Question icons created by Shashank Singh - Flaticon"></img>
+          <p>How To Play</p>
+        </button>
+        <button id="history-button" class="menu-button">
+          <img id="history-icon" src="images/history.png" alt="History icons created by Tempo_doloe - Flaticon"></img>
+          <p>History</p>
+        </button>
+      </div>
+  </header>
+    <div id="search-container" style="position: relative;" class="search-bar">
+        <input type="text" id="search-input" placeholder="Guess how many views...">
+        <div id="suggestions" class="suggestions"></div>
+        <button id="search-button">🔍</button>
+    </div>
   <div class="video-page">
     <!-- Left: The video -->
     <div id="video-container" class="video-container">
@@ -33,7 +83,7 @@
     <div id="result-modal" class="modal hidden">
       <div class="modal-content">
         <span id="close-modal" class="close-btn">&times;</span>
-        <h2 id="result-title">You Won!</h2>
+        <h1 id="result-title">You Won!</h1>
         <img id="result-gif" src="" alt="Result animation" class="result-gif">
       </div>
     </div>
