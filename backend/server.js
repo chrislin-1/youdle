@@ -53,4 +53,6 @@ app.post("/api/stats", (req, res) => {
   res.json({ message: "Stats saved!", entry });
 });
 
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
