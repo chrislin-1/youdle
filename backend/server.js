@@ -18,7 +18,7 @@ await client.connect();
 app.get("/api/today", async (req, res) => {
   try {
     const { rows } = await client.query(
-      "SELECT data FROM daily_video ORDER BY date DESC LIMIT 1"
+      "SELECT data FROM daily_video ORDER BY id DESC LIMIT 1"
     );
 
     if (rows.length === 0) {
@@ -27,7 +27,7 @@ app.get("/api/today", async (req, res) => {
 
     res.json(rows[0].data);
   } catch (error) {
-    console.error("Error fetching daily video:", error);
+    console.error("Error fetching daily video:", error.message);
     res.status(500).json({ error: "Database query failed" });
   }
 });
