@@ -6,6 +6,7 @@ const { Client } = pkg;
 const app = express();
 app.use(cors());
 app.use(express.json());
+const knex = require("./knex"); // your knex config
 
 // Create a single persistent database connection
 const client = new Client({
@@ -32,26 +33,73 @@ app.get("/api/today", async (req, res) => {
   }
 });
 
+// POST endpoint to save game result
+app.post("/api/results", async (req, res) => {
+  try {
+    const { user_id, game_date, guesses, won } = req.body;
 
-// Post player stats
-app.post("/api/stats", (req, res) => {
-  const data = loadData();
-  const { player, won } = req.body;
+    // Optional: basic validation
+    if (!game_date || guesses === undefined || won === undefined) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
-  if (!player) {
-    return res.status(400).json({ error: "Player name required" });
+    await knex("game_results").insert({
+      user_id,
+      game_date,
+      guesses,
+      won
+    });
+
+    res.status(201).json({ message: "Result saved successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to save result" });
   }
-
-  const entry = {
-    player,
-    won,
-    timestamp: new Date().toISOString(),
-  };
-
-  data.stats.push(entry);
-  saveData(data);
-  res.json({ message: "Stats saved!", entry });
 });
+
+// GET endpoint for today’s stats
+app.get("/api/stats/today", async (req, res) => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+
+    const totalGamesQuery = await knex("game_results")
+      .count("* as count")
+      .where("game_date", today);
+    const totalGames = parseInt(totalGamesQuery[0].count);
+
+    const totalWinsQuery = await knex("game_results")
+      .count("* as count")
+      .where("game_date", today)
+      .andWhere("won", true);
+    const totalWins = parseInt(totalWinsQuery[0].count);
+
+    const winRate = totalGames ? (totalWins / totalGames) * 100 : 0;
+
+    // Guess distribution for winners
+    const guessesQuery = await knex("game_results")
+      .select("guesses")
+      .count("* as count")
+      .where("game_date", today)
+      .andWhere("won", true)
+      .groupBy("guesses");
+
+    const guessDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+    guessesQuery.forEach(row => {
+      guessDistribution[row.guesses] = ((row.count / totalWins) * 100).toFixed(1);
+    });
+
+    res.json({
+      totalGames,
+      totalWins,
+      winRate: winRate.toFixed(1),
+      guessDistribution
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch stats" });
+  }
+});
+
 
 const PORT = process.env.PORT || 3000;
 

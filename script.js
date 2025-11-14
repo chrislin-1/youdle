@@ -65,16 +65,18 @@ async function loadTopVideos() {
   ////////////// MOVED ALL GAME LOGIC INSIDE FUNCTION SO THAT todayVideo CAN BE USED ////////////////
   const instructionsModal = document.getElementById("instructions-modal");
   // Show instructions on load
-  window.addEventListener("load", () => {
+  function handleWindowLoad() {
     instructionsModal.style.display = "flex";
-  });
+  }
+  window.addEventListener("load", handleWindowLoad);
 
   // Close instructions and start game
-  window.addEventListener("click", (e) => {
+  function handleInstructionsModalClick(e) {
     if (e.target === instructionsModal) {
       instructionsModal.classList.add("hidden");
     }
-  });
+  }
+  window.addEventListener("click", handleInstructionsModalClick);
 
   //set variables
   console.log(todayVideo);
@@ -187,6 +189,7 @@ async function loadTopVideos() {
   // --- Modal Elements ---
   const modal = document.getElementById("result-modal");
   const closeModal = document.getElementById("close-modal");
+  const closeResults = document.getElementById("close-results");
   const resultTitle = document.getElementById("result-title");
   const resultGif = document.getElementById("result-gif");
 
@@ -203,22 +206,29 @@ async function loadTopVideos() {
     modal.classList.remove("hidden");
   }
 
-  // Function to hide modal
-  closeModal.addEventListener("click", () => {
-    modal.classList.add("hidden");
+  // Function to hide instructions modal 
+  function handleCloseModalClick() {
     instructionsModal.classList.add("hidden");
-  });
+  }
+  closeModal.addEventListener("click", handleCloseModalClick);
 
-  // Optional: click outside modal to close
-  window.addEventListener("click", (e) => {
+  // Function to hide results modal 
+  function handleCloseResultsClick() {
+    modal.classList.add("hidden");
+  }
+  closeResults.addEventListener("click", handleCloseResultsClick);
+
+  // Optional: click outside modal to close both modals
+  function handleModalClick(e) {
     if (e.target === modal) {
       modal.classList.add("hidden");
     }
-  });
+  }
+  window.addEventListener("click", handleModalClick);
   ////////////////////////////////////////////////////////////////////////////////////
 
   //////////////////////////// LIVE INPUT FORMATTING  ////////////////////////////////
-  searchInput.addEventListener("input", (e) => {
+  function handleSearchInput(e) {
     let guess = e.target.value;
 
     // Remove all non-digit characters
@@ -233,11 +243,12 @@ async function loadTopVideos() {
     // Convert to number and format with commas
     const numberValue = parseInt(guess, 10);
     e.target.value = numberValue.toLocaleString();
-  });
+  }
+  searchInput.addEventListener("input", handleSearchInput);
   
   //////////////////////////// SUBMITTED ANSWER LOGIC ////////////////////////////////
   let guessCount = 0;
-  document.getElementById("search-button").addEventListener("click", () => {
+  function handleSearchButtonClick() {
     if (guessCount >= MAX_GUESSES) return; // stop at 6 guesses
     const query = searchInput.value;
     const guessViews = Number(query.replace(/,/g, "")); 
@@ -265,6 +276,8 @@ async function loadTopVideos() {
       viewsElement.style.color = "green";
       currentBack.style.backgroundColor = "green";
       showResultModal(true);
+      endGame();
+      submitResult(true, guessCount + 1);
     } else if (ViewDifference > 0) {
         guessThumbnail = "images/up.png";
         backImg.textContent="Like icons created by Gregor Cresnar - Flaticon";
@@ -282,7 +295,9 @@ async function loadTopVideos() {
         viewsElement.textContent = `${answerFormatted} views`;
         console.log(`incorrect, the video has ${answerFormatted} views`)
         showResultModal(false);
-      }
+        endGame();
+        submitResult(false, guessCount + 1);
+      } 
     } else {
         guessThumbnail = "images/down.png";
         backImg.textContent="Thumb down icons created by lalawidi - Flaticon";
@@ -300,6 +315,8 @@ async function loadTopVideos() {
         viewsElement.textContent = `${answerFormatted} views`;
         console.log(`incorrect, the video has ${answerFormatted} views`)
         showResultModal(false);
+        endGame();
+        submitResult(false, guessCount + 1);
       }
     }
 
@@ -314,19 +331,63 @@ async function loadTopVideos() {
 
     // Increment guess
     guessCount++;
-  });
+  }
 
-  searchInput.addEventListener("keypress", (event) => {
+  function endGame() {
+    searchInput.removeEventListener("input", handleSearchInput);
+    document.getElementById("search-button").removeEventListener("click", handleSearchButtonClick);
+    searchInput.removeEventListener("keypress", handleSearchInputKeypress);
+    searchInput.disabled = true;
+    // show result modal, etc.
+  }
+
+  async function submitResult(gameWon, numGuesses) {
+    const gameDate = new Date().toISOString().split("T")[0];
+  
+    await fetch("/api/results", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: "anonymous", // optional for now
+        game_date: gameDate,
+        guesses: numGuesses,
+        won: gameWon
+      })
+    });
+  }
+  
+  async function showGlobalStats() {
+    const res = await fetch("/api/stats/today");
+    const stats = await res.json();
+  
+    // Example: update modal or stats UI
+    document.getElementById("total-games").textContent = stats.totalGames;
+    document.getElementById("win-rate").textContent = stats.winRate + "%";
+  
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById(`guess-${i}`).textContent =
+        stats.guessDistribution[i] + "%";
+    }
+  
+    // Show modal
+    statsModal.classList.remove("hidden");
+  }
+
+  document.getElementById("search-button").addEventListener("click", handleSearchButtonClick);
+
+  function handleSearchInputKeypress(event) {
     if (event.key === "Enter") {
       event.preventDefault(); // Prevent form submission reload
       document.getElementById("search-button").click();
     }
-  });
+  }
+  searchInput.addEventListener("keypress", handleSearchInputKeypress);
 
   const infoButton = document.getElementById('how-to-button');
-  infoButton.addEventListener("click", () => {
+  function handleInfoButtonClick() {
     instructionsModal.classList.remove("hidden");    
-  })
+  }
+  infoButton.addEventListener("click", handleInfoButtonClick);
 }
 
 loadTopVideos();
