@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import pkg from "pg";
-import knex from "./knew.js"
+import knex from "./knex.js"
 
 const { Client } = pkg;
 const app = express();
