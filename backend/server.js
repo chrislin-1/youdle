@@ -1,26 +1,18 @@
 import express from "express";
 import cors from "cors";
-import pkg from "pg";
-import knex from "./knex.js"
+import db from "./db.js";  // <-- single Knex instance
 
-const { Client } = pkg;
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Create a single persistent database connection
-const client = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // Needed for Railway’s SSL setup
-});
-await client.connect();
-
-// Get today’s video from DB
+// Get today's video from DB
 app.get("/api/today", async (req, res) => {
   try {
-    const { rows } = await client.query(
-      "SELECT data FROM daily_video ORDER BY id DESC LIMIT 1"
-    );
+    const rows = await db("daily_video")
+      .select("data")
+      .orderBy("id", "desc")
+      .limit(1);
 
     if (rows.length === 0) {
       return res.status(404).json({ error: "No daily video set yet" });
@@ -38,12 +30,11 @@ app.post("/api/results", async (req, res) => {
   try {
     const { user_id, game_date, guesses, won } = req.body;
 
-    // Optional: basic validation
     if (!game_date || guesses === undefined || won === undefined) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    await knex("game_results").insert({
+    await db("game_results").insert({
       user_id,
       game_date,
       guesses,
@@ -57,17 +48,17 @@ app.post("/api/results", async (req, res) => {
   }
 });
 
-// GET endpoint for today’s stats
+// GET endpoint for today's stats
 app.get("/api/stats/today", async (req, res) => {
   try {
     const today = new Date().toISOString().split("T")[0];
 
-    const totalGamesQuery = await knex("game_results")
+    const totalGamesQuery = await db("game_results")
       .count("* as count")
       .where("game_date", today);
     const totalGames = parseInt(totalGamesQuery[0].count);
 
-    const totalWinsQuery = await knex("game_results")
+    const totalWinsQuery = await db("game_results")
       .count("* as count")
       .where("game_date", today)
       .andWhere("won", true);
@@ -75,8 +66,7 @@ app.get("/api/stats/today", async (req, res) => {
 
     const winRate = totalGames ? (totalWins / totalGames) * 100 : 0;
 
-    // Guess distribution for winners
-    const guessesQuery = await knex("game_results")
+    const guessesQuery = await db("game_results")
       .select("guesses")
       .count("* as count")
       .where("game_date", today)
@@ -100,7 +90,5 @@ app.get("/api/stats/today", async (req, res) => {
   }
 });
 
-
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
