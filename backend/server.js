@@ -1,12 +1,12 @@
 import express from "express";
 import cors from "cors";
 import pkg from "pg";
+import knex from "./knew.js"
 
 const { Client } = pkg;
 const app = express();
 app.use(cors());
 app.use(express.json());
-const knex = require("./knex"); // your knex config
 
 // Create a single persistent database connection
 const client = new Client({
