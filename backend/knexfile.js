@@ -14,7 +14,7 @@ const config = {
   },
   production: {
     client: "pg",
-    connection: {
+    connection: process.env.DATABASE_URL || {
       host: process.env.PGHOST,
       user: process.env.PGUSER,
       password: process.env.PGPASSWORD,
