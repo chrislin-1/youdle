@@ -75,13 +75,13 @@ app.get("/api/stats/today", async (req, res) => {
 
     const guessDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
     guessesQuery.forEach(row => {
-      guessDistribution[row.guesses] = ((row.count / totalWins) * 100).toFixed(1);
+      guessDistribution[row.guesses] = ((row.count / totalWins) * 100).toFixed();
     });
 
     res.json({
       totalGames,
       totalWins,
-      winRate: winRate.toFixed(1),
+      winRate: winRate.toFixed(),
       guessDistribution
     });
   } catch (err) {

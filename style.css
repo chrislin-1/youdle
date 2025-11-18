@@ -384,6 +384,59 @@ h3 {
   margin-top: 20px;
 }
 
+.close {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+
+.stats-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.stat-block {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.stat-label {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.guess-bars {
+  margin-top: 10px;
+}
+
+.guess-bar {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.guess-label {
+  width: 20px;
+}
+
+.guess-fill {
+  height: 24px;
+  margin-left: 10px;
+  background: #538d4e; /* Wordle green */
+  text-align: right;
+  padding-right: 6px;
+  color: white;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
 #result-title {
 
 }

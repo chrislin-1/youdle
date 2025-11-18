@@ -202,7 +202,6 @@ async function loadTopVideos() {
       resultTitle.innerHTML = `😢 You lost, but at least you're not an internet loser? Today's video has <span style=color:red>${answerFormatted} views</span>`;
       resultGif.src = "https://i0.wp.com/badbooksgoodtimes.com/wp-content/uploads/2013/06/threw-it-on-the-ground-1.gif?fit=389%2C219&ssl=1"; // sad GIF
     }
-
     modal.classList.remove("hidden");
   }
 
@@ -278,6 +277,7 @@ async function loadTopVideos() {
       showResultModal(true);
       endGame();
       submitResult(true, guessCount + 1);
+      showStats();
     } else if (ViewDifference > 0) {
         guessThumbnail = "images/up.png";
         backImg.textContent="Like icons created by Gregor Cresnar - Flaticon";
@@ -297,6 +297,7 @@ async function loadTopVideos() {
         showResultModal(false);
         endGame();
         submitResult(false, guessCount + 1);
+        showStats();
       } 
     } else {
         guessThumbnail = "images/down.png";
@@ -317,6 +318,7 @@ async function loadTopVideos() {
         showResultModal(false);
         endGame();
         submitResult(false, guessCount + 1);
+        showStats();
       }
     }
 
@@ -331,6 +333,39 @@ async function loadTopVideos() {
 
     // Increment guess
     guessCount++;
+  }
+
+  async function showStats() {
+    try {
+      const res = await fetch("/api/stats/today");
+      const stats = await res.json();
+
+      // Update simple numbers
+      document.getElementById("total-games").textContent = stats.totalGames;
+      document.getElementById("win-rate").textContent = stats.winRate + "%";
+
+      // Render guess distribution
+      const container = document.getElementById("guess-distribution");
+      container.innerHTML = ""; // clear old
+
+      let maxPercent = Math.max(...Object.values(stats.guessDistribution));
+
+      for (let i = 1; i <= 6; i++) {
+        const percent = stats.guessDistribution[i] || 0;
+
+        container.innerHTML += `
+          <div class="guess-bar">
+            <div class="guess-label">${i}</div>
+            <div class="guess-fill" style="width: ${(percent / maxPercent) * 100}%; max-width: 100%;">
+              ${percent}%
+            </div>
+          </div>
+        `;
+      }
+
+    } catch (err) {
+      console.error("Failed to load stats:", err);
+    }
   }
 
   function endGame() {
@@ -354,23 +389,6 @@ async function loadTopVideos() {
         won: gameWon
       })
     });
-  }
-  
-  async function showGlobalStats() {
-    const res = await fetch('${API_BASE}/api/stats/today');
-    const stats = await res.json();
-  
-    // Example: update modal or stats UI
-    document.getElementById("total-games").textContent = stats.totalGames;
-    document.getElementById("win-rate").textContent = stats.winRate + "%";
-  
-    for (let i = 1; i <= 6; i++) {
-      document.getElementById(`guess-${i}`).textContent =
-        stats.guessDistribution[i] + "%";
-    }
-  
-    // Show modal
-    statsModal.classList.remove("hidden");
   }
 
   document.getElementById("search-button").addEventListener("click", handleSearchButtonClick);
