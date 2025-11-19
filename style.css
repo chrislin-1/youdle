@@ -428,13 +428,19 @@ h3 {
 .guess-fill {
   height: 24px;
   margin-left: 10px;
-  background: #538d4e; /* Wordle green */
+  background: #c00; /* Wordle green */
   text-align: right;
   padding-right: 6px;
   color: white;
   font-size: 14px;
   border-radius: 4px;
   transition: width 0.4s ease;
+  align-items: center;
+  margin-right: 3px;
+}
+
+.guess-percent {
+  font-weight: bold;
 }
 
 #result-title {
@@ -451,7 +457,7 @@ h3 {
   }
 
   h2#result-title {
-    color: black;
+    color: white;
   }
 
     /* Optional: adjust specific text elements for visibility */

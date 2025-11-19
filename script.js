@@ -1,18 +1,13 @@
-const API_BASE = "https://youtube-guess-game-production.up.railway.app";
+////////////////////// CHANG API BASE FOR DEV VS PROD //////////////////////
+//const API_BASE = "https://youtube-guess-game-production.up.railway.app";
+const API_BASE = "http://localhost:8080"; 
+
 
 async function loadTodayVideo() {
   const response = await fetch(`${API_BASE}/api/today`);
   const todayVideo = await response.json();
   console.log("Today's video:", todayVideo);
   return todayVideo;
-}
-
-async function submitStats(player, won) {
-  await fetch(`${API_BASE}/api/stats`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ player, won }),
-  });
 }
 
 const MAX_GUESSES = 6;
@@ -297,6 +292,7 @@ async function loadTopVideos() {
         showResultModal(false);
         endGame();
         submitResult(false, guessCount + 1);
+        console.log("submitting loss");
         showStats();
       } 
     } else {
@@ -337,7 +333,7 @@ async function loadTopVideos() {
 
   async function showStats() {
     try {
-      const res = await fetch("/api/stats/today");
+      const res = await fetch(`${API_BASE}/api/stats/today`);
       const stats = await res.json();
 
       // Update simple numbers
@@ -348,20 +344,28 @@ async function loadTopVideos() {
       const container = document.getElementById("guess-distribution");
       container.innerHTML = ""; // clear old
 
-      let maxPercent = Math.max(...Object.values(stats.guessDistribution));
-
+      // Find longest bar by taking max percent of winners guesses and loser percent
+      const lossPercent = 100 - stats.winRate;
+      let maxPercent = Math.max(...Object.values(stats.guessDistribution), lossPercent);
       for (let i = 1; i <= 6; i++) {
         const percent = stats.guessDistribution[i] || 0;
 
         container.innerHTML += `
           <div class="guess-bar">
             <div class="guess-label">${i}</div>
-            <div class="guess-fill" style="width: ${(percent / maxPercent) * 100}%; max-width: 100%;">
-              ${percent}%
-            </div>
+            <div class="guess-fill" style="width: ${(percent / maxPercent) * 100}%; max-width: 80%;"></div>
+            <div class="guess-percent">${percent}%</div>
           </div>
         `;
       }
+
+      container.innerHTML += `
+        <div class="guess-bar">
+          <div class="guess-label">${"😢"}</div>
+          <div class="guess-fill" style="width: ${(lossPercent / maxPercent) * 100}%; max-width: 80%;"></div>
+          <div class="guess-percent">${lossPercent}%</div>
+        </div>
+      `;
 
     } catch (err) {
       console.error("Failed to load stats:", err);

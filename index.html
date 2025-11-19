@@ -87,8 +87,29 @@
     <div id="result-modal" class="modal hidden">
       <div class="modal-content">
         <span id="close-results" class="close-btn">&times;</span>
-        <h1 id="result-title">You Won!</h1>
+        <h2 id="result-title">You Won!</h2>
         <img id="result-gif" src="" alt="Result animation" class="result-gif">
+
+        <!-- STATS FOR THE DAY -->
+        <span id="close-stats" class="close">&times;</span>
+
+        <h2>Today's Stats</h2>
+
+        <div class="stats-row">
+          <div class="stat-block">
+            <div class="stat-number" id="total-games">0</div>
+            <div class="stat-label">Plays</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-number" id="win-rate">0%</div>
+            <div class="stat-label">Win Rate</div>
+          </div>
+        </div>
+
+        <h3>Global Guess Distribution</h3>
+        <div id="guess-distribution" class="guess-bars">
+          <!-- Bars inserted dynamically -->
+        </div>
       </div>
     </div>
   </div>  
