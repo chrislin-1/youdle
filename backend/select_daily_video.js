@@ -1,6 +1,9 @@
 import fs from "fs";
 import db from "./db.js";   // <--- use your shared Knex instance
 
+console.log("CWD:", process.cwd());
+console.log("FILES:", fs.readdirSync("."));
+
 async function selectDailyVideo() {
   try {
     // Load video list
