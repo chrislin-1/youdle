@@ -3,6 +3,8 @@ import db from "./db.js";   // <--- use your shared Knex instance
 
 console.log("CWD:", process.cwd());
 console.log("FILES:", fs.readdirSync("."));
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("DATABASE_URL:", process.env.DATABASE_URL ? "SET" : "NOT SET");
 
 async function selectDailyVideo() {
   try {
