@@ -1,11 +1,6 @@
 import fs from "fs";
 import db from "./db.js";   // <--- use your shared Knex instance
 
-console.log("CWD:", process.cwd());
-console.log("FILES:", fs.readdirSync("."));
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("DATABASE_URL:", process.env.DATABASE_URL ? "SET" : "NOT SET");
-
 async function selectDailyVideo() {
   try {
     // Load video list
@@ -27,10 +22,9 @@ async function selectDailyVideo() {
     // IMPORTANT: close Knex so Node exits cleanly
     await db.destroy();
 
-    console.log("Waiting 500ms before exit to ensure PostgreSQL flushes...");
-    await new Promise(res => setTimeout(res, 500));
+    //console.log("Waiting 500ms before exit to ensure PostgreSQL flushes...");
+    //await new Promise(res => setTimeout(res, 500));
   }
 }
 
 selectDailyVideo();
-setTimeout(() => process.exit(0), 2000);
