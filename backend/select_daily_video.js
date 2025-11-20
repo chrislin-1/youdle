@@ -26,6 +26,9 @@ async function selectDailyVideo() {
   } finally {
     // IMPORTANT: close Knex so Node exits cleanly
     await db.destroy();
+
+    console.log("Waiting 500ms before exit to ensure PostgreSQL flushes...");
+    await new Promise(res => setTimeout(res, 500));
   }
 }
 
