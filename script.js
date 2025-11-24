@@ -1,6 +1,6 @@
 ////////////////////// CHANG API BASE FOR DEV VS PROD //////////////////////
-//const API_BASE = "https://youdle-production.up.railway.app";
-const API_BASE = "http://localhost:8080"; 
+const API_BASE = "https://youdle-production.up.railway.app";
+//const API_BASE = "http://localhost:8080"; 
 
 
 async function loadTodayVideo() {
